@@ -25,25 +25,24 @@ export async function criarUsuario({nome, email, senha_hash}) {
 
 export async function buscarUsuarioPorEmail(email) {
     const [resultado] = await conexao.query(
-        "SELECT id, nome, email, criado_em FROM usuarios WHERE email = ?",
+        "SELECT id, nome, email, senha_hash, criado_em FROM usuarios WHERE email = ?",
         [email]
     );
     return resultado[0]
 }
 
-export async function excluirUsuario(req, res) {
-    try {
-        const { id } = req.params;
+export async function deletarUsuario(id) {
+    const [resultado] = await conexao.query(
+        "DELETE FROM usuarios WHERE id = ?",
+        [id]
+    );
+    // O mysql retorna as linhas afetadas
+    return resultado.affectedRows;
+}
 
-        const linhasAfetadas = await usuarioModel.deletarUsuario(id);
-
-        if (linhasAfetadas === 0) {
-            return res.status(404).json({ mensagem: "Usuário não encontrado." });
-        }
-
-        return res.status(200).json({ mensagem: "Usuário deletado com sucesso!" });
-    } catch (erro) {
-        console.error(erro);
-        return res.status(500).json({ mensagem: "Erro ao deletar no servidor." });
-    }
+export async function atualizarUsuario({nome, email, senha_hash,id}) {
+    const [resultado] = await conexao.query(
+        "UPDATE  usuarios SET nome=?,email= ?, senha_hash=? where id = ? ",
+        [nome,email,senha_hash,id]
+    )
 }

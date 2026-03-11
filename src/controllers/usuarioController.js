@@ -73,18 +73,37 @@ export async function deletar(req, res) {
     try {
         const { id } = req.params;
 
-        // Remove do banco
-        const resultado = await Usuario.destroy({
-            where: { id: id }
-        });
+        const linhasAfetadas = await usuarioModel.deletarUsuario(id);
 
-        // Se o resultado for 0, significa que não encontrou o ID
-        if (resultado === 0) {
+        if (linhasAfetadas === 0) {
             return res.status(404).json({ error: "Usuário não encontrado." });
         }
 
         return res.status(200).json({ message: "Usuário removido com sucesso." });
     } catch (error) {
+        console.error(error);
         return res.status(500).json({ error: "Erro interno ao deletar usuário." });
     }
-};
+}
+
+export async function editar(req,res) {
+    const {nome, email, senha} = req.body;
+    const id = req.params.id
+
+    if(!nome || !email || !senha){
+        return res.status(400).json({msg: "Nome, email e senha são obrigatórios"})
+    }
+
+    const senha_hash = crypto.createHash("sha256")
+    .update(senha)
+    .digest("hex");
+
+    const usuarioAtualizado = await usuarioModel.atualizarUsuario({
+        nome,email,senha_hash,id
+    })
+
+     res.status(200).json({
+        msg: "Usuário atualizado com sucesso",
+        id
+    })
+}
