@@ -30,3 +30,20 @@ export async function buscarUsuarioPorEmail(email) {
     );
     return resultado[0]
 }
+
+export async function excluirUsuario(req, res) {
+    try {
+        const { id } = req.params;
+
+        const linhasAfetadas = await usuarioModel.deletarUsuario(id);
+
+        if (linhasAfetadas === 0) {
+            return res.status(404).json({ mensagem: "Usuário não encontrado." });
+        }
+
+        return res.status(200).json({ mensagem: "Usuário deletado com sucesso!" });
+    } catch (erro) {
+        console.error(erro);
+        return res.status(500).json({ mensagem: "Erro ao deletar no servidor." });
+    }
+}
